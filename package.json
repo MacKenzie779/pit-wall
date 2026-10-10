@@ -1,0 +1,28 @@
+{
+  "name": "pit-wall",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun run --parallel dev:server dev:web",
+    "dev:server": "bun --watch server/index.ts",
+    "dev:web": "vite --config web/vite.config.ts",
+    "build": "vite build --config web/vite.config.ts",
+    "start": "NODE_ENV=production bun server/index.ts",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@fontsource/jetbrains-mono": "^5.3.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "zustand": "^5.0.15"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.4.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.4"
+  }
+}
