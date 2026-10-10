@@ -1,5 +1,6 @@
 {
   "name": "pit-wall",
+  "license": "MIT",
   "private": true,
   "type": "module",
   "scripts": {

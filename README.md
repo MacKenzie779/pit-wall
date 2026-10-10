@@ -67,3 +67,8 @@ Marshal-sector and corner positions aren't in the timing feed. They come from
 MultiViewer's public circuit API (`api.multiviewer.app`). That API is unofficial and
 undocumented, and only the circuit key and year are sent. Team radio clips play directly
 from formula1.com's live-timing archive.
+
+## License
+
+[MIT](LICENSE) for the code in this repository. The license covers this code only, not
+the Formula 1 data, audio or trademarks it works with.
