@@ -128,7 +128,10 @@ export function mergeTyreSets(stints: Stint[]): Stint[] {
   const out: Stint[] = [];
   for (const s of stints) {
     const prev = out.at(-1);
-    if (prev && sameSet(prev, s)) out[out.length - 1] = { ...prev, TotalLaps: s.TotalLaps ?? prev.TotalLaps };
+    // Same set: its age is whichever entry F1 keeps counting up (usually the later one, but
+    // sometimes the original stint while the extra entry stays frozen).
+    if (prev && sameSet(prev, s))
+      out[out.length - 1] = { ...prev, TotalLaps: Math.max(prev.TotalLaps ?? 0, s.TotalLaps ?? 0) };
     else out.push(s);
   }
   return out;

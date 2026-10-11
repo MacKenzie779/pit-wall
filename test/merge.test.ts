@@ -87,3 +87,14 @@ test("mergeTyreSets: same used set continuing despite a later-flipped TyresNotCh
   ];
   expect(mergeTyreSets(raw)).toHaveLength(1);
 });
+
+test("mergeTyreSets: tyre age comes from whichever entry is still counting", async () => {
+  const { mergeTyreSets } = await import("../web/src/derive.ts");
+  // Live race, lap 12, no pit stop: F1 added a frozen "tyres not changed" entry at 6 laps
+  // while the original stint kept counting.
+  const raw = [
+    { Compound: "MEDIUM", New: "true", TyresNotChanged: "0", StartLaps: 0, TotalLaps: 12 },
+    { Compound: "MEDIUM", New: "true", TyresNotChanged: "1", StartLaps: 0, TotalLaps: 6 },
+  ];
+  expect(mergeTyreSets(raw)).toEqual([{ Compound: "MEDIUM", New: "true", TyresNotChanged: "0", StartLaps: 0, TotalLaps: 12 }]);
+});
