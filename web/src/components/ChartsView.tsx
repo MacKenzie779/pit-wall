@@ -1,10 +1,11 @@
 import { useMemo, useState } from "react";
 import { toList } from "../../../shared/merge.ts";
-import type { Driver } from "../../../shared/types.ts";
-import type { Row } from "../derive.ts";
+import type { Driver, SessionInfo } from "../../../shared/types.ts";
+import { trackState, type Row } from "../derive.ts";
 import { isRaceSession } from "../standings.ts";
 import { useSize } from "../hooks.ts";
 import { useStore } from "../store.ts";
+import { CircleOfDoom } from "./CircleOfDoom.tsx";
 import { Panel } from "./Panel.tsx";
 
 interface DriverSeries {
@@ -16,12 +17,38 @@ interface DriverSeries {
 }
 
 const RANGES = [10, 30, 60, 0] as const; // 0 = all
+/** Typical green-flag pit loss; the real figure depends on the circuit, so it's adjustable. */
+const DEFAULT_PIT_LOSS = 22;
+
+/** Pit loss in seconds, remembered per circuit. */
+function usePitLoss(circuit: number | undefined): [number, (v: number) => void] {
+  const key = `pitLoss:${circuit ?? "?"}`;
+  const read = () => {
+    try {
+      const v = Number(localStorage.getItem(key));
+      return v > 0 ? v : DEFAULT_PIT_LOSS;
+    } catch {
+      return DEFAULT_PIT_LOSS;
+    }
+  };
+  const [state, setState] = useState({ key, value: read() });
+  const value = state.key === key ? state.value : read();
+  const set = (v: number) => {
+    setState({ key, value: v });
+    try {
+      localStorage.setItem(key, String(v));
+    } catch {}
+  };
+  return [value, set];
+}
 
 export function ChartsView({ rows }: { rows: Row[] }) {
   const feed = useStore((s) => s.feed);
   const [focus, setFocus] = useState<Set<string>>(new Set());
   const [range, setRange] = useState<(typeof RANGES)[number]>(60);
   const drivers = (feed.DriverList ?? {}) as Record<string, Driver>;
+  const [pitLoss, setPitLoss] = usePitLoss((feed.SessionInfo as SessionInfo | undefined)?.Meeting?.Circuit?.Key);
+  const sc = ["4", "6", "7"].includes(trackState(feed).code);
 
   // Teammates share a colour; the higher car number gets a dashed line.
   const dashed = useMemo(() => {
@@ -77,7 +104,7 @@ export function ChartsView({ rows }: { rows: Row[] }) {
       <main className="main main-single">
         <div className="notice">
           <div className="c-amber">▌CHARTS · RACES & SPRINTS</div>
-          <p>Position-by-lap and gap-to-leader charts appear during a race or sprint (live or in replay).</p>
+          <p>Position-by-lap, gap-to-leader and pit-window charts appear during a race or sprint (live or in replay).</p>
         </div>
       </main>
     );
@@ -129,6 +156,20 @@ export function ChartsView({ rows }: { rows: Row[] }) {
         }
       >
         <LapChart series={gaps} focus={focus} kind="gap" range={range} onToggle={toggle} />
+      </Panel>
+      <Panel
+        title="PIT WINDOW"
+        className="chart-panel doom-panel"
+        right={
+          <span className="range-picks">
+            <span className="dim">PIT LOSS</span>
+            <button onClick={() => setPitLoss(Math.max(5, pitLoss - 0.5))}>−</button>
+            <span className="c-white">{pitLoss.toFixed(1)}s</span>
+            <button onClick={() => setPitLoss(Math.min(60, pitLoss + 0.5))}>+</button>
+          </span>
+        }
+      >
+        <CircleOfDoom rows={rows} focus={focus} loss={pitLoss} underSafetyCar={sc} onToggle={toggle} />
       </Panel>
     </main>
   );

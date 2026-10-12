@@ -42,6 +42,11 @@ The server only listens on `127.0.0.1`.
 - **Flags on the map**: yellow and double-yellow marshal sectors, red-flag track, and
   corner numbers.
 - **Charts** (races and sprints): position by lap and gap to leader, with driver focus.
+- **Pit window ("circle of doom")**: the field placed round one lap by time behind the
+  leader, so lapped cars sit next to the cars they're racing on the road. Focused cars get
+  a ghost where they would rejoin after a stop, with the position and the gaps to the cars
+  around them. The pit loss is set per circuit (default 22 s, `−`/`+` in the panel header)
+  and is the green-flag figure, so under a safety car a real stop costs less.
 - **Standings**: drivers' and constructors' championships. During a race or sprint they
   show the projected table as if the session ended now.
 - **Race control and team radio** panels, plus weather and speed traps.
